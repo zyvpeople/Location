@@ -1,0 +1,1 @@
+include ':locationSample', ':locationCore', ':locationGooglePlayService', ':locationManager'
