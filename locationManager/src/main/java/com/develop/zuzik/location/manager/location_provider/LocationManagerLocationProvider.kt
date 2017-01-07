@@ -24,8 +24,11 @@ class LocationManagerLocationProvider(private val context: Context,
     private val internetAvailability = InternetAvailability(context)
     private val gpsAvailability = GpsAvailability(context)
 
-    override fun asObservable(): Observable<Location> = Observable
-            .defer<Location> {
+    override fun asObservable(): Observable<Location> =
+            locationAvailable().flatMap { location() }
+
+    private fun locationAvailable() = Observable
+            .defer<Any> {
                 if (!locationManagerAvailability.available()) {
                     Observable.error(LocationManagerUnavailableException())
                 } else if (!internetAvailability.available()) {
@@ -33,9 +36,13 @@ class LocationManagerLocationProvider(private val context: Context,
                 } else if (!gpsAvailability.available()) {
                     Observable.error(GpsUnavailableException())
                 } else {
-                    val locationNetworkObservable = Observable.create(LocationObservable.createNetworkLocationObservable(context, minUpdateIntervalInMilliseconds, minUpdateDistanceInMeters))
-                    val locationGpsObservable = Observable.create(LocationObservable.createGpsLocationObservable(context, minUpdateIntervalInMilliseconds, minUpdateDistanceInMeters))
-                    Observable.merge<Location>(locationNetworkObservable, locationGpsObservable)
+                    Observable.just(Any())
                 }
             }
+
+    private fun location(): Observable<Location> {
+        val locationNetworkObservable = Observable.create(LocationObservable.createNetworkLocationObservable(context, minUpdateIntervalInMilliseconds, minUpdateDistanceInMeters))
+        val locationGpsObservable = Observable.create(LocationObservable.createGpsLocationObservable(context, minUpdateIntervalInMilliseconds, minUpdateDistanceInMeters))
+        return Observable.merge<Location>(locationNetworkObservable, locationGpsObservable)
+    }
 }
