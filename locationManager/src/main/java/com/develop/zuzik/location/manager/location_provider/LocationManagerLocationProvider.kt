@@ -15,6 +15,7 @@ import rx.Observable
  * User: zuzik
  * Date: 4/30/16
  */
+//TODO: it is incorrect to check internet and gps at the same time
 class LocationManagerLocationProvider(private val context: Context,
                                       private val minUpdateIntervalInMilliseconds: Long,
                                       private val minUpdateDistanceInMeters: Float) : LocationProvider {
